@@ -77,7 +77,9 @@ trait LocationHelpers
     public function setUrl($suffix = null): void
     {
         if (is_single_location()) {
-            $suffix = '/menus';
+            $this->url = page_url('menus');
+
+            return;
         }
 
         $this->url = page_url($this->permalink_slug.$suffix);

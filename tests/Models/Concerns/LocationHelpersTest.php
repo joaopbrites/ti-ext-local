@@ -9,6 +9,7 @@ use Igniter\Flame\Database\Attach\Media;
 use Igniter\Flame\Geolite\Contracts\CoordinatesInterface;
 use Igniter\Local\Models\Location;
 use Igniter\System\Models\Country;
+use Illuminate\Support\Facades\URL;
 
 it('returns correct location name', function(): void {
     $location = Location::factory()->create(['location_name' => 'Test Location']);
@@ -103,19 +104,22 @@ it('returns correct coordinates', function(): void {
 
 it('sets correct URL with suffix', function(): void {
     $location = Location::factory()->create(['permalink_slug' => 'test-location']);
+    config(['igniter-system.locationMode' => 'multi']);
 
     $location->setUrl('/test-suffix');
 
     expect($location->url)->toBe(page_url('test-location/test-suffix'));
 });
 
-it('sets correct URL without suffix for single location', function(): void {
+it('sets URL without the location slug for single location', function(): void {
     $location = Location::factory()->create(['permalink_slug' => 'test-location']);
     config(['igniter-system.locationMode' => 'single']);
+    URL::forceRootUrl('https://arigato.example.test');
 
     $location->setUrl();
 
-    expect($location->url)->toBe(page_url('test-location/menus'));
+    expect(parse_url($location->url, PHP_URL_HOST))->toBe('arigato.example.test');
+    expect(parse_url($location->url, PHP_URL_PATH))->toBe('/menus');
 });
 
 it('checks if location has gallery', function(): void {
